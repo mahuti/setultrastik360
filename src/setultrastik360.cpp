@@ -76,7 +76,7 @@ void errorhandler(libusb_context *&context, libusb_device_handle *&devicehandle,
     exit(EXIT_FAILURE);
 }
 
-auto rotatestick(long int way, bool hasRestrictor) {
+auto applyU360map(long int mapId, bool hasRestrictor) {
     libusb_context *context(nullptr);
     std::vector<std::tuple<libusb_device *,int, int>> devicelist;
     libusb_device_handle *devicehandle(nullptr);
@@ -102,19 +102,19 @@ auto rotatestick(long int way, bool hasRestrictor) {
                 rc = libusb_claim_interface(devicehandle, U360_INTERFACE);
                 if (rc != LIBUSB_SUCCESS) { errorhandler(context, devicehandle, rc); }
 
-                std::get<1>(u360BehavioralMaps[way])[2] = hasRestrictor ? (unsigned char)0x10 : (unsigned char)0x09; //restrictor_on : restrictor_off
+                std::get<1>(u360BehavioralMaps[mapId])[2] = hasRestrictor ? (unsigned char)0x10 : (unsigned char)0x09; //restrictor_on : restrictor_off
 
                 //TODO begin untested code segment - no test hardware - needs end2end testing
                 rc = 0; //U360 requires 24 writes of 4 bytes - reset rc
                 for(size_t i(0); i<(U360_MESG_LENGTH*U360_WRITE_CYCLES); i+=U360_MESG_LENGTH){
                     std::slice slc (i,U360_MESG_LENGTH,1);
-                    std::valarray<unsigned char> writeCycleSlice = std::get<1>(u360BehavioralMaps[way])[slc];
+                    std::valarray<unsigned char> writeCycleSlice = std::get<1>(u360BehavioralMaps[mapId])[slc];
                     rc += libusb_control_transfer(devicehandle, UM_REQUEST_TYPE, UM_REQUEST, U360_VALUE, U360_INTERFACE, &writeCycleSlice[0], U360_MESG_LENGTH, UM_TIMEOUT);
                     std::this_thread::sleep_for(std::chrono::microseconds(U360_HARDWARE_WRITE_DELAY));
                 }
                 std::stringstream ss;
                 ss << std::hex << "U360 0x" << std::get<1>(device) << ":0x" << std::hex << std::get<2>(device) << " (Restrictor:" << (hasRestrictor?"On":"Off") << ")"
-                   << std::get<0>(u360BehavioralMaps[way]) << " -> " << ((rc == U360_MESG_LENGTH*U360_WRITE_CYCLES) ? "SUCCESS" : "FAILURE") << "\n";
+                   << std::get<0>(u360BehavioralMaps[mapId]) << " -> " << ((rc == U360_MESG_LENGTH*U360_WRITE_CYCLES) ? "SUCCESS" : "FAILURE") << "\n";
                 std::cout << ss.str();
                 //TODO end untested code segment - no test hardware - needs end2end testing
 
@@ -129,18 +129,18 @@ auto rotatestick(long int way, bool hasRestrictor) {
 
 int main(int argc, char* argv[])
 {
-    long int way(0);
+    long int mapId(0);
     bool hasRestrictor(false);
     switch (argc) {
         case 3:
             if(argv[2]=="-r") { hasRestrictor = true; }
         case 2:
             try {
-                way = std::stol(argv[1],nullptr,10);
-                if(way<1||way>9) { way = 0; }
+                mapId = std::stol(argv[1],nullptr,10);
+                if(mapId<1||mapId>9) { mapId = 0; }
             }
-            catch(std::exception &) { way = 0; }
-            if(!way) {
+            catch(std::exception &) { mapId = 0; }
+            if(!mapId) {
                 std::cerr << "Wrong arguments (allowed values [1-9])\n";
                 return EXIT_FAILURE;
             }
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
                     <<"|_____|___|_| |_____|_|_| |_| |__,|_____|_| |_|_,_|___|___|___|\n"
                     << "setultrastik360 Copyright (C) 2018  De Waegeneer Gijsbrecht\n"
                     << "Ultimarc UltraStik360 switcher Version "<< VERSION << "\n\n"
-                    << "[ " << argv[0]<< " way (-r) ] change all U360 joysticks to way x - x being :\n"
+                    << "[ " << argv[0]<< " map (-r) ] apply map x to all U360's x - x being:\n"
                     << "x  map name\n"
                     << "1  2-Way, Left & Right\n"
                     << "2  2-Way, Up & Down\n"
@@ -169,6 +169,6 @@ int main(int argc, char* argv[])
                     << "license: GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007\nCopyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>\n";
             return EXIT_SUCCESS;
     }
-    return rotatestick(way, hasRestrictor);
+    return applyU360map(mapId, hasRestrictor);
 }
 

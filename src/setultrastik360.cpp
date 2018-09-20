@@ -104,7 +104,7 @@ auto rotatestick(long int way, bool hasRestrictor) {
 
                 std::get<1>(u360BehavioralMaps[way])[2] = hasRestrictor ? (unsigned char)0x10 : (unsigned char)0x09; //restrictor_on : restrictor_off
 
-                //TODO begin untested code segment - no test hardware - logic has been confirmed functional in other source
+                //TODO begin untested code segment - no test hardware - needs end2end testing
                 rc = 0; //U360 requires 24 writes of 4 bytes - reset rc
                 for(size_t i(0); i<(U360_MESG_LENGTH*U360_WRITE_CYCLES); i+=U360_MESG_LENGTH){
                     std::slice slc (i,U360_MESG_LENGTH,1);
@@ -116,17 +116,7 @@ auto rotatestick(long int way, bool hasRestrictor) {
                 ss << std::hex << "U360 0x" << std::get<1>(device) << ":0x" << std::hex << std::get<2>(device) << " (Restrictor:" << (hasRestrictor?"On":"Off") << ")"
                    << std::get<0>(u360BehavioralMaps[way]) << " -> " << ((rc == U360_MESG_LENGTH*U360_WRITE_CYCLES) ? "SUCCESS" : "FAILURE") << "\n";
                 std::cout << ss.str();
-                //TODO end untested code segment - no test hardware - logic has been confirmed functional in other source
-
-                /*
-                //test program flow with servostik - is of no real use - confirmed functional
-                unsigned char message[U360_MESG_LENGTH] = {0x00, 0x00, 0x00, 0x00}; //4-way
-                if (way == 8) { message[3] = 0x01; } //8-way
-                rc = libusb_control_transfer(devicehandle, UM_REQUEST_TYPE, UM_REQUEST, U360_VALUE, U360_INTERFACE, message, U360_MESG_LENGTH, UM_TIMEOUT);
-                std::stringstream ss;
-                ss << std::hex << "U360 0x" << std::get<1>(device) << ":0x" << std::hex << std::get<2>(device) << " (Restrictor:" << (restrictorOn?"On":"Off") << ")" << std::get<0>(u360BehavioralMaps[way]) << " -> " << ((rc == sizeof(message)) ? "SUCCESS" : "FAILURE") << "\n";
-                std::cout << ss.str();
-                */
+                //TODO end untested code segment - no test hardware - needs end2end testing
 
                 rc = libusb_release_interface(devicehandle, U360_INTERFACE);
                 if (rc != LIBUSB_SUCCESS) { errorhandler(context, devicehandle, rc); }

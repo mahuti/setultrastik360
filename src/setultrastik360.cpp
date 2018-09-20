@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
                     <<"|_____|___|_| |_____|_|_| |_| |__,|_____|_| |_|_,_|___|___|___|\n"
                     << "setultrastik360 Copyright (C) 2018  De Waegeneer Gijsbrecht\n"
                     << "Ultimarc UltraStik360 switcher Version "<< VERSION << "\n\n"
-                    << "[ " << argv[0]<< " map (-r) ] apply map x to all U360's x - x being:\n"
+                    << "[ " << argv[0]<< " map (-r) ] apply map x to all U360's , x being:\n"
                     << "x  map name\n"
                     << "1  2-Way, Left & Right\n"
                     << "2  2-Way, Up & Down\n"

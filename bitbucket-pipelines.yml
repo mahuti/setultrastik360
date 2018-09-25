@@ -1,0 +1,7 @@
+image: gijsbrechtdewaegeneer/ultimarc:pipeline-1.0.0
+
+pipelines:
+  default:
+    - step:
+        script:
+          - ./ci-build.sh

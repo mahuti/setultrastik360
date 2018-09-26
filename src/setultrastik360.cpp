@@ -83,7 +83,12 @@ auto applyU360map(long int mapId, bool hasRestrictor) {
 
     rc = libusb_init(&context);
     if (rc != LIBUSB_SUCCESS) { errorhandler(context, devicehandle, rc); }
-    libusb_set_debug(context, LIBUSB_LOG_LEVEL_INFO);
+
+    #if LIBUSB_API_VERSION >= 0x01000106
+        libusb_set_option(context, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_WARNING);
+    #else
+        libusb_set_debug(context, LIBUSB_LOG_LEVEL_WARNING);
+    #endif
 
     if (!getdevice(context, U360_VENDOR, U360_PRODUCT, devicelist)) {
         errorhandler(context, devicehandle, "No UltraStik360 devices were found.");

@@ -24,6 +24,7 @@
 #include <chrono>
 #include <thread>
 #include <libusb-1.0/libusb.h>
+#include <cstring>
 #include "u360maps.h"
 
 #define UM_REQUEST_TYPE 0x21
@@ -135,7 +136,7 @@ int main(int argc, char *argv[]) {
     bool hasRestrictor(false);
     switch (argc) {
         case 3:
-            if (argv[2] == "-r") { hasRestrictor = true; }
+            if (strcmp(argv[2],"-r") == 0) { hasRestrictor = true; }
         case 2:
             try {
                 mapId = std::stol(argv[1], nullptr, 10);

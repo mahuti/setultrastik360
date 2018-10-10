@@ -39,6 +39,8 @@
 #define U360_HARDWARE_WRITE_DELAY 417
 #define KERNEL_DRIVER_ATTACHED 1
 #define VERSION "1.0.0"
+#define RESTRICTOR_ON 0x10
+#define RESTRICTOR_OFF 0x09
 
 auto getdevice(libusb_context *&context, const unsigned int &vendor, const unsigned int &product, std::vector<std::tuple<libusb_device *, int, int>> &devicelist) {
   libusb_device **devices;
@@ -118,7 +120,7 @@ auto applyU360map(long int mapId, bool hasRestrictor) {
           errorhandler(context, devicehandle, rc);
         }
 
-        std::get<1>(u360BehavioralMaps[mapId])[2] = hasRestrictor ? (unsigned char)0x10 : (unsigned char)0x09; // restrictor_on : restrictor_off
+        std::get<1>(u360BehavioralMaps[mapId])[2] = hasRestrictor ? (unsigned char)RESTRICTOR_ON : (unsigned char)RESTRICTOR_OFF;
 
         // TODO begin untested code segment - no test hardware - needs end2end testing
         rc = 0; // U360 requires 24 writes of 4 bytes - reset rc
